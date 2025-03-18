@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen Recorder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex flex-col items-center justify-center h-screen bg-gray-100">
+
+    <div class="bg-white p-6 rounded-lg shadow-lg text-center w-96">
+        <h2 class="text-2xl font-bold mb-4">Screen Recorder</h2>
+        <video id="preview" class="w-full mb-4" controls></video>
+        <div class="flex justify-between">
+            <button id="startBtn" class="bg-green-600 text-white px-4 py-2 rounded">Start Recording</button>
+            <button id="stopBtn" class="bg-red-600 text-white px-4 py-2 rounded hidden">Stop Recording</button>
+            <a id="downloadLink" class="bg-blue-600 text-white px-4 py-2 rounded hidden">Download</a>
+        </div>
+    </div>
+
+    <script>
+        let mediaRecorder;
+        let recordedChunks = [];
+
+        document.getElementById("startBtn").addEventListener("click", async () => {
+            const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+            document.getElementById("preview").srcObject = stream;
+            
+            mediaRecorder = new MediaRecorder(stream);
+            recordedChunks = [];
+
+            mediaRecorder.ondataavailable = event => recordedChunks.push(event.data);
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(recordedChunks, { type: "video/webm" });
+                const url = URL.createObjectURL(blob);
+                
+                document.getElementById("downloadLink").href = url;
+                document.getElementById("downloadLink").download = "recording.webm";
+                document.getElementById("downloadLink").classList.remove("hidden");
+            };
+
+            mediaRecorder.start();
+            document.getElementById("startBtn").classList.add("hidden");
+            document.getElementById("stopBtn").classList.remove("hidden");
+        });
+
+        document.getElementById("stopBtn").addEventListener("click", () => {
+            mediaRecorder.stop();
+            document.getElementById("stopBtn").classList.add("hidden");
+        });
+    </script>
+
+</body>
+</html>

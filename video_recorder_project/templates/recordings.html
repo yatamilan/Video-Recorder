@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saved Recordings</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+
+    <div class="bg-white p-6 rounded-lg shadow-lg text-center w-96">
+        <h2 class="text-2xl font-bold mb-4">Saved Recordings</h2>
+        <div id="recordingsList" class="space-y-4"></div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const recordingsList = document.getElementById("recordingsList");
+            const savedRecordings = JSON.parse(localStorage.getItem("recordings")) || [];
+
+            if (savedRecordings.length === 0) {
+                recordingsList.innerHTML = "<p class='text-gray-600'>No recordings available.</p>";
+                return;
+            }
+
+            savedRecordings.forEach((recording, index) => {
+                const div = document.createElement("div");
+                div.classList.add("border", "p-2", "rounded", "flex", "justify-between", "items-center");
+
+                const video = document.createElement("video");
+                video.src = recording;
+                video.controls = true;
+                video.classList.add("w-32");
+
+                const deleteBtn = document.createElement("button");
+                deleteBtn.innerText = "Delete";
+                deleteBtn.classList.add("bg-red-600", "text-white", "px-2", "py-1", "rounded");
+                deleteBtn.addEventListener("click", () => {
+                    savedRecordings.splice(index, 1);
+                    localStorage.setItem("recordings", JSON.stringify(savedRecordings));
+                    location.reload();
+                });
+
+                div.appendChild(video);
+                div.appendChild(deleteBtn);
+                recordingsList.appendChild(div);
+            });
+        });
+    </script>
+
+</body>
+</html>
